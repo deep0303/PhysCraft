@@ -20,29 +20,31 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// Add this if you want to serve frontend from the same server
-// app.use(express.static(path.join(__dirname, '../physcraft/build')));
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(__dirname, '../physcraft/build', 'index.html'));
-// });
 
 // Routes
 const applicationRoutes = require('./routes/applicationRoutes');
 app.use('/api/applications', applicationRoutes);
 
+// Serve static files from the frontend build directory
+app.use(express.static(path.join(__dirname, '../physcraft/build')));
+
+// Handle API routes first, then serve frontend for all other routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../physcraft/build', 'index.html'));
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error('Error:', err.stack);
-    res.status(500).json({
-        success: false,
-        message: 'Something went wrong!',
-        error: err.message
-    });
+  console.error('Error:', err.stack);
+  res.status(500).json({
+    success: false,
+    message: 'Something went wrong!',
+    error: err.message
+  });
 });
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
